@@ -4,6 +4,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
@@ -11,6 +12,8 @@ import android.os.Build;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import android.widget.TextView;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
@@ -30,9 +33,12 @@ public class Camera extends AppCompatActivity
     private Mat matInput;
     private Mat matResult;
 
+    public TextView resultView;
+    public String result_tip="";
+    BackgroundTask task;
     private CameraBridgeViewBase mOpenCvCameraView;
 
-    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
+    public native  String ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
 
     static {
@@ -40,7 +46,24 @@ public class Camera extends AppCompatActivity
         System.loadLibrary("native-lib");
     }
 
+    class BackgroundTask extends AsyncTask<Integer , Integer , Integer> {
 
+        @Override
+        protected Integer doInBackground(Integer... integers) {
+            while(true) {
+                publishProgress(100);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        protected void onProgressUpdate(Integer ... values) {
+            resultView.setText(result_tip);
+        }
+    }
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -70,10 +93,14 @@ public class Camera extends AppCompatActivity
 
         setContentView(R.layout.activity_camera);
 
+        task = new BackgroundTask();
+        task.execute(100);
+
         mOpenCvCameraView = (CameraBridgeViewBase)findViewById(R.id.activity_surface_view);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setCameraIndex(0); // front-camera(1),  back-camera(0)
+        resultView = (TextView)findViewById(R.id.resultView);
     }
 
     @Override
@@ -125,7 +152,13 @@ public class Camera extends AppCompatActivity
 
             matResult = new Mat(matInput.rows(), matInput.cols(), matInput.type());
 
-        ConvertRGBtoGray(matInput.getNativeObjAddr(), matResult.getNativeObjAddr());
+        result_tip=ConvertRGBtoGray(matInput.getNativeObjAddr(), matResult.getNativeObjAddr());
+//       if(!(result_tip.equals("")))
+//            resultView.setText(result_tip);
+//        else
+//            resultView.setText("틀에 번호판을 인식시켜주세요");
+       // resultView.setText("틀에 번호판을 인식시켜주세요");
+        // 문자열 설정하면 오류생김
 
         return matInput;
     }

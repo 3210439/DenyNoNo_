@@ -10,5 +10,6 @@
     <string name="tip">tip 관련 내용</string>
     <string name="mediumTaxi">중형 택시 요금</string>
     <string name="bigTaxi">대형 택시 비용</string>
+    <string name="result_tip">틀 안에 번호판을 인식 시켜주세요.</string>
 
 </resources>

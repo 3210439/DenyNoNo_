@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
     static {
         System.loadLibrary("native-lib");
     }
+    public static String result_tip = String.valueOf(R.string.result_tip);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
